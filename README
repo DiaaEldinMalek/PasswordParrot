@@ -1,3 +1,12 @@
+Password Parrot is a telegram bot that acts as a password manager. It can store user data, user credentials on demand, and can view, retrieve, or delete credentials at will.
+It can also set an expiry date for some credentials to delete automatically after a certain period.
+
+
+The bot can be started by sending /start or any text that starts with "hi" or "hello".
+If you're a new user, it will take some time getting to know you before displaying the list of possible commands.
+Some actions require certain input formats to work. In such cases, the bot will provide hints to the correct format.
+
+
 pymongo_scripts.py:
 The script defines a set of functions that can be used to interact with the MongoDB database. 
 The functions include getting a connection to the database, getting a list of users, checking if a user exists, getting user data, setting user data, getting a list of credentials, getting a specific credential, deleting a credential, and adding a credential.
