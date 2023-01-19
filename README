@@ -6,17 +6,17 @@ script.py:
 The script is built heavily on python-telegram-api, especially the conversationbot.py example in the documentation. I use the ConversationHandler to switch between different states depending on the previous/predicted user input. Multiple callback functions are called to handle different jobs, explained briefly below.
 
 start(): 
-Starts the conversation, and can be triggered with '/start' or any text starting with hi/hello. It tries to load user data. If it exists, it directly displays the command that control the database. Otherwise it starts a series of callback function that initialize the user.
+Starts the conversation, and can be triggered with '/start' or any text starting with hi/hello. It tries to load user data. If found, it directly displays the possible commands to the user. Otherwise it takes the user through a one-time questionnaire to initialize user data.
 
 name() and skip_name():
-Based on the user's message after start() doesn't find user data, one of these functions will be called to store the username or use the telegram name by default, then direct the state to get the email
+First part (out of 2) of the questionnaire. Based on the user's response after start() asks for the user's name, one of these functions will be called
 
 email() and skip_email():
-Based on the user's message after start() doesn't find user data, one of these functions will be called.
-The user data is saved to the database in this step by sending a dictionary storing user data through pymongo_scripts functions
+Final part of the questionnaire. Based on the user's response in the previous step, one of these functions will be called.
+The user data is saved to the database in this step by sending a dictionary storing user data through pymongo_scripts.set_user_data()
 
 open_menu():
-This function displays the list of possible commands and changes the state to wait for one of them
+This function displays the list of possible commands and changes the state of ConversationHandler to wait for a command
 
 buffer():
 An intermediate step for callback functions that add/retrieve/delete credentials. 
@@ -24,7 +24,7 @@ It prompts the user to type in input required before callback functions can be c
 Has 4 exclusive cases, and handles each command then changes the state of the conversation accordingly
 
 ret_data():
-Retrieves data of active user. Calls the get_user_data() function from pymongo scripts and parses the output
+Retrieves data of the active user. Calls the get_user_data() function from pymongo scripts and parses the output
 
 add_cred():
 Adds a new credential to the user database. This function is called after buffer prompts the user to type in the credentials in this format:
@@ -41,7 +41,7 @@ Deletes a credential from the user database. This function is called after buffe
 
 view_all(): 
 Fallback handler (so the user can use it at any time)
-Views all user credentials (servicename and username only, password is shown only by calling ret_cred())
+Views all user credentials (servicename and username only, passwords are shown only by calling ret_cred())
 
 set_expiry():
 Sets a credential record to expire after some time. This function is called after buffer. 
@@ -55,7 +55,9 @@ scheduled_remove():
 This function is executed once the timer runs out, and it calls delete_credential() on the expired credential record
 
 cancel():
+Fallback handler
 Cancels the current operation operation and waits for new commands
 
 exit():
+Fallback handler
 Exits the program completely
