@@ -1,0 +1,61 @@
+pymongo_scripts.py:
+The script defines a set of functions that can be used to interact with the MongoDB database. 
+The functions include getting a connection to the database, getting a list of users, checking if a user exists, getting user data, setting user data, getting a list of credentials, getting a specific credential, deleting a credential, and adding a credential.
+
+script.py:
+The script is built heavily on python-telegram-api, especially the conversationbot.py example in the documentation. I use the ConversationHandler to switch between different states depending on the previous/predicted user input. Multiple callback functions are called to handle different jobs, explained briefly below.
+
+start(): 
+Starts the conversation, and can be triggered with '/start' or any text starting with hi/hello. It tries to load user data. If it exists, it directly displays the command that control the database. Otherwise it starts a series of callback function that initialize the user.
+
+name() and skip_name():
+Based on the user's message after start() doesn't find user data, one of these functions will be called to store the username or use the telegram name by default, then direct the state to get the email
+
+email() and skip_email():
+Based on the user's message after start() doesn't find user data, one of these functions will be called.
+The user data is saved to the database in this step by sending a dictionary storing user data through pymongo_scripts functions
+
+open_menu():
+This function displays the list of possible commands and changes the state to wait for one of them
+
+buffer():
+An intermediate step for callback functions that add/retrieve/delete credentials. 
+It prompts the user to type in input required before callback functions can be called.
+Has 4 exclusive cases, and handles each command then changes the state of the conversation accordingly
+
+ret_data():
+Retrieves data of active user. Calls the get_user_data() function from pymongo scripts and parses the output
+
+add_cred():
+Adds a new credential to the user database. This function is called after buffer prompts the user to type in the credentials in this format:
+"servicename
+username
+password"
+The message is parsed into a dictionary and passed through pymongo_scripts.add_credential()
+
+ret_cred():
+Retrieves a credential from the user database. This function is called after buffer prompts the user to type in the servicename
+
+del_cred():
+Deletes a credential from the user database. This function is called after buffer prompts the user to type in the servicename
+
+view_all(): 
+Fallback handler (so the user can use it at any time)
+Views all user credentials (servicename and username only, password is shown only by calling ret_cred())
+
+set_expiry():
+Sets a credential record to expire after some time. This function is called after buffer. 
+set_expiry() stores the credential name in a global dictionary under user_id as key. 
+After that, it prompts the user to set the time left to expiry then switches the state to set_timer()
+
+set_timer():
+This function was adapted from timerbot.py in the API documentation. It checks input validity and adds the function scheduled_remove (which handles the expiry) to the context job queue.
+
+scheduled_remove():
+This function is executed once the timer runs out, and it calls delete_credential() on the expired credential record
+
+cancel():
+Cancels the current operation operation and waits for new commands
+
+exit():
+Exits the program completely
